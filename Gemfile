@@ -73,3 +73,5 @@ group :test do
   gem "selenium-webdriver"
 end
 gem 'nokogiri', '~> 1.15.0'
+gem 'tailwindcss-rails', '~> 2.0'
+gem 'tailwindcss-rails', '2.0.33'
