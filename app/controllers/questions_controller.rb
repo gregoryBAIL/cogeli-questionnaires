@@ -120,13 +120,13 @@ class QuestionsController < ApplicationController
 
 
   def calculate_pose_coefficient
-    base_coefficient = @current_session.questionnaire.settings['base_coefficient'] || 4.5
+    base_coefficient = 4.5
     total_points = base_coefficient
 
     # Calculer la somme de tous les points
     @current_session.user_responses.includes(question: :answer_options).each do |response|
-      # Pour les choix simples avec quantités multiples (passages mur)
-      if response.question.question_type == 'single_choice' && response.question.metadata&.dig('requires_quantity')
+      # Pour toutes les questions avec quantités (QP4, QP5, QP6)
+      if response.question.metadata&.dig('requires_quantity')
         begin
           answer_data = JSON.parse(response.answer_code)
           if answer_data['type'] == 'multiple_quantities' && answer_data['total_points']
@@ -152,11 +152,17 @@ class QuestionsController < ApplicationController
         option = response.question.answer_options.find_by(code: response.answer_code)
         total_points += option.metadata['points'].to_f if option&.metadata&.dig('points')
 
-      # Pour les choix multiples (plâtrerie)
+      # Pour les choix multiples standards (sans quantités)
       elsif response.question.question_type == 'multiple_choice'
-        answer_codes = JSON.parse(response.answer_code) rescue []
-        answer_codes.each do |code|
-          option = response.question.answer_options.find_by(code: code)
+        begin
+          answer_codes = JSON.parse(response.answer_code)
+          answer_codes.each do |code|
+            option = response.question.answer_options.find_by(code: code)
+            total_points += option.metadata['points'].to_f if option&.metadata&.dig('points')
+          end
+        rescue JSON::ParserError
+          # Si ce n'est pas du JSON, traiter comme code unique
+          option = response.question.answer_options.find_by(code: response.answer_code)
           total_points += option.metadata['points'].to_f if option&.metadata&.dig('points')
         end
       end
@@ -178,8 +184,8 @@ class QuestionsController < ApplicationController
 
     @current_session.user_responses.includes(question: :answer_options).each do |response|
       if response.question.metadata&.dig('points_field')
-        # Pour les choix simples avec quantités multiples (passages mur)
-        if response.question.question_type == 'single_choice' && response.question.metadata&.dig('requires_quantity')
+        # Pour toutes les questions avec quantités (QP4, QP5, QP6) en priorité
+        if response.question.metadata&.dig('requires_quantity')
           begin
             answer_data = JSON.parse(response.answer_code)
             if answer_data['type'] == 'multiple_quantities' && answer_data['details']
@@ -194,7 +200,7 @@ class QuestionsController < ApplicationController
               # Ajouter le total
               details << {
                 question: response.question.title,
-                answer: "Total passages mur",
+                answer: "Total #{response.question.title.downcase}",
                 points: answer_data['total_points'].to_f
               }
             else
@@ -231,11 +237,23 @@ class QuestionsController < ApplicationController
             }
           end
 
-        # Pour les choix multiples (plâtrerie)
+        # Pour les choix multiples standards (sans quantités)
         elsif response.question.question_type == 'multiple_choice'
-          answer_codes = JSON.parse(response.answer_code) rescue []
-          answer_codes.each do |code|
-            option = response.question.answer_options.find_by(code: code)
+          begin
+            answer_codes = JSON.parse(response.answer_code)
+            answer_codes.each do |code|
+              option = response.question.answer_options.find_by(code: code)
+              if option&.metadata&.dig('points') && option.metadata['points'].to_f > 0
+                details << {
+                  question: response.question.title,
+                  answer: option.label,
+                  points: option.metadata['points'].to_f
+                }
+              end
+            end
+          rescue JSON::ParserError
+            # Si ce n'est pas du JSON, traiter comme code unique
+            option = response.question.answer_options.find_by(code: response.answer_code)
             if option&.metadata&.dig('points') && option.metadata['points'].to_f > 0
               details << {
                 question: response.question.title,
