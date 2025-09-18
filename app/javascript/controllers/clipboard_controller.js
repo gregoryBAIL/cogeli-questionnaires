@@ -113,22 +113,6 @@ export default class extends Controller {
     }, 3000)
   }
 
-  // Copy coefficient (specialized method)
-  copyCoefficient(event) {
-    event.preventDefault()
-    const coefficient = event.target.dataset.coefficient
-
-    if (coefficient) {
-      const textToCopy = `Coefficient de pose: ${coefficient}`
-
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        this.showToast(`Coefficient ${coefficient} copié !`, 'success')
-      }).catch(err => {
-        this.fallbackCopy(textToCopy)
-        this.showToast(`Coefficient ${coefficient} copié !`, 'success')
-      })
-    }
-  }
 
   // Print page
   print(event) {

@@ -5,22 +5,16 @@ class ResultsController < ApplicationController
   def show
     @result = @current_session.result || generate_result
 
-    # Traitement différent selon le type de questionnaire
-    if @current_session.questionnaire.slug == 'coefficient-pose'
-      # Pour le questionnaire coefficient, pas besoin d'organiser les kits
-      # Les données sont déjà dans @result.product_kits
-    else
-      # Pour le questionnaire fumisterie, organiser les kits par catégorie
-      all_kits = @result.product_kits || []
+    # Organiser les kits par catégorie
+    all_kits = @result.product_kits || []
 
-      @grouped_kits = {
-        'raccordement' => all_kits.select { |kit| kit['code']&.start_with?('RA') },
-        'conduit' => all_kits.select { |kit| kit['code']&.start_with?('CF') },
-        'liaison' => all_kits.select { |kit| kit['code']&.start_with?('LI') },
-        'finition' => all_kits.select { |kit| kit['code']&.start_with?('FH') },
-        'option' => all_kits.select { |kit| kit['code']&.start_with?('DEVRAC', 'FHREH') }
-      }
-    end
+    @grouped_kits = {
+      'raccordement' => all_kits.select { |kit| kit['code']&.start_with?('RA') },
+      'conduit' => all_kits.select { |kit| kit['code']&.start_with?('CF') },
+      'liaison' => all_kits.select { |kit| kit['code']&.start_with?('LI') },
+      'finition' => all_kits.select { |kit| kit['code']&.start_with?('FH') },
+      'option' => all_kits.select { |kit| kit['code']&.start_with?('DEVRAC', 'FHREH') }
+    }
   end
 
   def download
@@ -56,21 +50,12 @@ class ResultsController < ApplicationController
   end
 
   def generate_result
-    if @current_session.questionnaire.slug == 'coefficient-pose'
-      # Pour le questionnaire coefficient, le résultat est déjà généré par le contrôleur Questions
-      # On retourne un résultat vide si pas encore calculé
-      @current_session.create_result!(
-        product_kits: {},
-        generated_at: Time.current
-      )
-    else
-      # Pour le questionnaire fumisterie, générer les kits
-      kits = ProductKit.find_matches_for(@current_session)
+    # Générer les kits
+    kits = ProductKit.find_matches_for(@current_session)
 
-      @current_session.create_result!(
-        product_kits: kits.map { |k| k.as_json },
-        generated_at: Time.current
-      )
-    end
+    @current_session.create_result!(
+      product_kits: kits.map { |k| k.as_json },
+      generated_at: Time.current
+    )
   end
 end

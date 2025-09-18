@@ -1,2 +1,2 @@
-web: bundle exec puma -C config/puma.rb
-release: bundle exec rails db:migrate && bundle exec rake setup:reset_and_seed
+web: bundle exec puma -p $PORT -C ./config/puma.rb
+release: rails db:migrate && rails db:seed

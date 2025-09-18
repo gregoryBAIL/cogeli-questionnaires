@@ -80,6 +80,4 @@ test:
 #
 production:
   <<: *default
-  database: cogeli_questionnaires_production
-  username: cogeli_questionnaires
-  password: <%= ENV["COGELI_QUESTIONNAIRES_DATABASE_PASSWORD"] %>
+  url: <%= ENV["DATABASE_URL"] %>
