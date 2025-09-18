@@ -1,88 +1,227 @@
 <!-- app/views/questionnaires/index.html.erb -->
-<div class="min-h-screen bg-white" id="app">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" id="app">
   <!-- Header -->
-  <div class="border-b border-gray-100">
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-gray-300 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
-        <div class="flex items-center space-x-4">
-          <div class="w-10 h-10 bg-gray-900 rounded flex items-center justify-center">
-            <span class="text-white font-bold text-lg">C</span>
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <!-- Logo -->
+          <div class="relative group">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center transform transition-transform group-hover:scale-110 shadow-lg">
+              <span class="text-white font-black text-lg sm:text-xl">C</span>
+            </div>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Cogeli</h1>
-            <p class="text-sm text-gray-600">Configuration fumisterie</p>
+            <h1 class="text-xl sm:text-2xl font-black text-gray-900">
+              Cogeli
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-600 font-medium">Configuration fumisterie</p>
           </div>
+        </div>
+        <!-- Indicateur -->
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span class="text-xs text-gray-600 hidden sm:inline">En ligne</span>
         </div>
       </div>
     </div>
-  </div>
+  </header>
 
   <!-- Container principal -->
-  <div class="max-w-4xl mx-auto px-4 py-8">
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+
     <!-- Page d'accueil -->
     <div id="home-page" class="page">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl font-bold text-gray-900 mb-6">
-          Configurateur fumisterie
-        </h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-12">
-          Trouvez les solutions techniques parfaitement adaptées à votre projet.
-        </p>
-        <button onclick="startQuestionnaire()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl text-lg">
-          Commencer la configuration
-        </button>
+      <div class="text-center space-y-8 py-8 sm:py-16">
+        <!-- Badge -->
+        <div class="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 rounded-full shadow-md">
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-sm font-semibold text-white">Solution certifiée Cogeli</span>
+        </div>
+
+        <!-- Titre -->
+        <div class="space-y-4">
+          <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+            <span class="text-blue-600">Configurateur</span>
+            <br />
+            <span class="text-gray-900">fumisterie intelligent</span>
+          </h2>
+          <p class="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed">
+            Obtenez votre configuration personnalisée en <span class="font-bold text-gray-900">3 minutes</span>.
+            Solution technique optimale garantie.
+          </p>
+        </div>
+
+        <!-- Features cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mt-8 mb-10">
+          <div class="group p-4 bg-white rounded-2xl shadow-md border border-gray-200 hover:shadow-xl hover:border-green-400 transition-all duration-300 hover:-translate-y-1">
+            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-1">Rapide</h3>
+            <p class="text-sm text-gray-600">Configuration en 3 min</p>
+          </div>
+
+          <div class="group p-4 bg-white rounded-2xl shadow-md border border-gray-200 hover:shadow-xl hover:border-blue-400 transition-all duration-300 hover:-translate-y-1">
+            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-1">Précis</h3>
+            <p class="text-sm text-gray-600">Catalogue complet</p>
+          </div>
+
+          <div class="group p-4 bg-white rounded-2xl shadow-md border border-gray-200 hover:shadow-xl hover:border-purple-400 transition-all duration-300 hover:-translate-y-1">
+            <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-1">Export PDF</h3>
+            <p class="text-sm text-gray-600">Devis professionnel</p>
+          </div>
+        </div>
+
+        <!-- CTA Button -->
+        <div class="relative inline-block">
+          <button onclick="startQuestionnaire()" class="px-8 sm:px-10 py-4 sm:py-5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base sm:text-lg rounded-2xl shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-105 flex items-center space-x-3">
+            <span>Commencer la configuration</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Questionnaire -->
     <div id="questionnaire-page" class="page hidden">
-      <!-- Progress bar -->
-      <div class="mb-8">
-        <div class="flex justify-between text-sm text-gray-600 mb-2">
-          <span id="current-page-name">Le raccordement</span>
-          <span id="progress-text">1 / 8</span>
+      <!-- Progress section -->
+      <div class="mb-8 bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+          <div class="mb-2 sm:mb-0">
+            <span class="text-xs text-gray-500 font-medium uppercase tracking-wider">Étape actuelle</span>
+            <h4 id="current-page-name" class="text-lg font-bold text-gray-900">Le raccordement</h4>
+          </div>
+          <div class="text-right">
+            <span id="progress-text" class="text-sm font-bold text-gray-900">1 / 8</span>
+            <p class="text-xs text-gray-500">questions</p>
+          </div>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2">
-          <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 12.5%"></div>
+        <div class="relative">
+          <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div id="progress-bar" class="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Question -->
-      <div id="question-container" class="bg-white rounded-lg shadow-lg p-8">
-        <h3 id="question-title" class="text-2xl font-bold text-gray-900 mb-6"></h3>
+      <!-- Question card -->
+      <div id="question-container" class="bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-gray-200">
+        <h3 id="question-title" class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-8"></h3>
         <div id="answer-options" class="space-y-3"></div>
       </div>
 
       <!-- Navigation -->
-      <div class="flex justify-between mt-8">
-        <button id="prev-btn" onclick="previousQuestion()" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-          Précédent
+      <div class="flex justify-between items-center mt-8">
+        <button id="prev-btn" onclick="previousQuestion()" class="group flex items-center space-x-2 px-5 sm:px-6 py-3 bg-white border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span class="hidden sm:inline">Précédent</span>
         </button>
-        <button id="next-btn" onclick="nextQuestion()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-          Suivant
+
+        <button id="next-btn" onclick="nextQuestion()" class="group flex items-center space-x-2 px-6 sm:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" disabled>
+          <span>Suivant</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
         </button>
       </div>
     </div>
 
     <!-- Résultats -->
     <div id="results-page" class="page hidden">
-      <h2 class="text-3xl font-bold text-gray-900 mb-8">Votre configuration</h2>
-
-      <div id="results-container" class="space-y-6">
-        <!-- Les résultats seront injectés ici -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center space-x-2 px-4 py-2 bg-green-600 rounded-full mb-4 shadow-md">
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-sm font-semibold text-white">Configuration terminée</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-black text-gray-900">Votre configuration personnalisée</h2>
       </div>
 
-      <div class="mt-8 flex space-x-4">
-        <button onclick="restartQuestionnaire()" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-          Nouvelle configuration
+      <div id="results-container" class="space-y-6">
+        <!-- Les résultats seront injectés ici avec des cards blanches sur fond gris -->
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="restartQuestionnaire()" class="group flex items-center justify-center space-x-2 px-6 py-3 bg-white border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span>Nouvelle configuration</span>
         </button>
-        <button onclick="downloadPDF()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-          Télécharger PDF
+
+        <button onclick="downloadPDF()" class="group flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform transition-all hover:scale-105">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span>Télécharger PDF</span>
+        </button>
+
+        <button onclick="sendByEmail()" class="group flex items-center justify-center space-x-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform transition-all hover:scale-105">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <span>Envoyer par email</span>
         </button>
       </div>
     </div>
-  </div>
+  </main>
 </div>
+
+<style>
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Styles pour les options de réponse */
+#answer-options label {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#answer-options label:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+#answer-options label.selected {
+  border-color: #2563eb;
+  background: linear-gradient(to right, #eff6ff, #dbeafe);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+</style>
 
 <script>
 // Configuration des questions
@@ -707,14 +846,3 @@ function showResults() {
   showPage('results-page');
 }
 </script>
-
-<style>
-.page {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
