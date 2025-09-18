@@ -170,7 +170,9 @@ q7.answer_options.create!([
   { code: "R4", label: "150", value: "150", position: 4 },
   { code: "R5", label: "180", value: "180", position: 5 },
   { code: "R6", label: "200", value: "200", position: 6 },
-  { code: "R7", label: "250", value: "250", position: 7 }
+  { code: "R7", label: "250", value: "250", position: 7 },
+  { code: "R8", label: "80130", value: "80130", position: 8 },
+  { code: "R9", label: "100150", value: "100150", position: 9 }
 ])
 
 Condition.create!(
@@ -195,7 +197,8 @@ q8.answer_options.create!([
   { code: "R3", label: "Toiture terrasse 30-45°", value: "TT", position: 3 },
   { code: "R4", label: "Toiture ardoise ou tuiles plates", value: "TA", position: 4 },
   { code: "R5", label: "Toiture tuile", value: "TTU", position: 5 },
-  { code: "R6", label: "Toiture bac acier", value: "TBA", position: 6 }
+  { code: "R6", label: "Toiture bac acier", value: "TBA", position: 6 },
+  { code: "R7", label: "Création extérieur", value: "CE", position: 7 }
 ])
 
 Condition.create!(
@@ -216,7 +219,7 @@ work_types = [["T", "Tubage"], ["DPI", "Conduit intérieur"], ["DPE", "Conduit e
 heights = (1..12).to_a
 roof_types = [
   ["MAC", "conduit maçonné"], ["MET", "conduit métallique"], ["ARDTP", "ardoise ou bac acier"],
-  ["TUMEC", "tuiles mécaniques"], ["ACIER", "bac acier"], ["PLAT", "toit plat"]
+  ["TUMEC", "tuiles mécaniques"], ["ACIER", "bac acier"], ["PLAT", "toit plat"], ["", "création extérieur"]
 ]
 
 puts "Génération des codes RA (Raccordement)..."
@@ -420,6 +423,8 @@ all_diameters.each do |diam_rac|
         when "180" then "Q7=R5"
         when "200" then "Q7=R6"
         when "250" then "Q7=R7"
+        when "80130" then "Q7=R8"
+        when "100150" then "Q7=R9"
         end
 
         condition = "#{diam_rac_condition} AND #{liaison_condition} AND #{type_condition} AND #{diam_conduit_condition} AND NOT ((Q3=R6 OR Q3=R7) AND Q5=R4)"
@@ -489,7 +494,7 @@ puts "Génération des codes FH (Finitions Hautes)..."
 
 # 4. CODES FH - FINITIONS HAUTES avec logique concentrique
 work_types.each do |type_code, type_name|
-  diameters.each do |diam_conduit|  # Utilise seulement diamètres standards pour conduits
+  all_diameters.each do |diam_conduit|  # Utilise tous les diamètres incluant 80130 et 100150
     roof_types.each do |roof_code, roof_name|
 
       # Conditions de base
@@ -508,6 +513,8 @@ work_types.each do |type_code, type_name|
       when "180" then "Q7=R5"
       when "200" then "Q7=R6"
       when "250" then "Q7=R7"
+      when "80130" then "Q7=R8"
+      when "100150" then "Q7=R9"
       end
 
       roof_condition = case roof_code
@@ -517,13 +524,15 @@ work_types.each do |type_code, type_name|
       when "TUMEC" then "Q8=R5"
       when "ACIER" then "Q8=R6"
       when "PLAT" then "Q8=R3"
+      when "" then "Q8=R7"
       end
 
       # LOGIQUE CONDITIONNELLE:
       # Si tubage + raccordement concentrique => seulement code CC
       # Sinon => code normal
-      if type_code == "T"
+      if type_code == "T" && roof_code != ""
         # Pour tubage: code CC si raccordement concentrique, sinon code normal
+        # Exclure Création extérieur pour CC
         cc_fh_code = "FH#{type_code}#{diam_conduit}#{roof_code}CC"
         cc_condition = "#{type_condition} AND #{diam_conduit_condition} AND #{roof_condition} AND (Q3=R6 OR Q3=R7)"
 
@@ -550,51 +559,15 @@ work_types.each do |type_code, type_name|
           stock: rand(10..40),
           active: true
         )
-      elsif type_code == "CC"
-        # Pour Création Conduit Concentrique: logique spéciale avec diamètres concentriques
-        # Raccordement 80130 -> Conduit 80130 (Q7=R8)
-        # Raccordement 100150 -> Conduit 100150 (Q7=R9)
-
-        # Code FHCC pour raccordement 80130 -> conduit 80130
-        cc_80130_code = "FH#{type_code}80130#{roof_code}"
-        cc_80130_condition = "#{type_condition} AND Q7=R8 AND #{roof_condition} AND Q3=R6"
-
-        ProductKit.create!(
-          category: "finition",
-          code: cc_80130_code,
-          name: "Finition haute #{type_name} 80130mm #{roof_name}",
-          condition_expression: cc_80130_condition,
-          price: rand(100..300),
-          stock: rand(10..40),
-          active: true
-        )
-
-        # Code FHCC pour raccordement 100150 -> conduit 100150
-        cc_100150_code = "FH#{type_code}100150#{roof_code}"
-        cc_100150_condition = "#{type_condition} AND Q7=R9 AND #{roof_condition} AND Q3=R7"
-
-        ProductKit.create!(
-          category: "finition",
-          code: cc_100150_code,
-          name: "Finition haute #{type_name} 100150mm #{roof_name}",
-          condition_expression: cc_100150_condition,
-          price: rand(100..300),
-          stock: rand(10..40),
-          active: true
-        )
-      elsif type_code == "DPE"
-        # Pour Création Extérieure: code sans toiture (la toiture n'est pas pertinente pour l'extérieur)
-        # On génère seulement un code par diamètre, sans suffixe de toiture
-        # Condition: seulement type + diamètre conduit (pas de toiture)
-        next unless roof_code == "MAC"  # On génère seulement une fois par diamètre
-
+      elsif type_code == "DPE" && roof_code == ""
+        # Pour DPE + Création Extérieure: code sans toiture
         dpe_code = "FH#{type_code}#{diam_conduit}"
-        dpe_condition = "#{type_condition} AND #{diam_conduit_condition}"
+        dpe_condition = "#{type_condition} AND #{diam_conduit_condition} AND #{roof_condition}"
 
         ProductKit.create!(
           category: "finition",
           code: dpe_code,
-          name: "Finition haute #{type_name} #{diam_conduit}mm",
+          name: "Finition haute #{type_name} #{diam_conduit}mm création extérieur",
           condition_expression: dpe_condition,
           price: rand(100..300),
           stock: rand(10..40),
