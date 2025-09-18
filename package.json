@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "scripts": {
-  "build:css": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify",
-  "build-css-production": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify"
-}
+      "build:css": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify",
+      "build-css-production": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify"
+    },
+    "build:css": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify"
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",
