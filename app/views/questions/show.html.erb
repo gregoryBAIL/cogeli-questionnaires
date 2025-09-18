@@ -1,162 +1,51 @@
-<div class="min-h-screen bg-white">
-  <!-- Header simple et épuré -->
-  <div class="border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <a href="<%= root_path %>" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-          <div class="w-8 h-8 bg-gray-900 rounded flex items-center justify-center">
-            <span class="text-white font-bold">C</span>
-          </div>
-          <span class="text-xl font-bold text-gray-900">Cogeli</span>
-        </a>
-        <div class="text-sm text-gray-500">
-          Configuration fumisterie
-        </div>
+<div class="max-w-3xl mx-auto p-6">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h2 class="text-2xl font-bold mb-6"><%= @question.text %></h2>
+    
+    <% if session[:answers] && session[:answers][@question.id.to_s] %>
+      <div class="mb-4 p-4 bg-green-100 border-2 border-green-500 rounded-lg">
+        <strong>Votre réponse précédente :</strong> 
+        <%= session[:answers][@question.id.to_s] %>
       </div>
+    <% end %>
+    
+    <div id="answer-options">
+      <% @question.answer_options.each do |option| %>
+        <%= form_with url: answer_question_path(@question), 
+                      method: :post, 
+                      local: false,
+                      data: { turbo: false } do |f| %>
+          <%= hidden_field_tag :answer_code, option.code %>
+          <%= hidden_field_tag :answer, option.text %>
+          <button type="submit" 
+                  class="w-full text-left p-4 mb-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
+                  onclick="markSelected(this); return true;">
+            <%= option.text %>
+          </button>
+        <% end %>
+      <% end %>
     </div>
   </div>
-
-  <!-- Contenu principal -->
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-
-    <!-- Header de la question -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold text-sm">
-            <%= @question.position %>
-          </div>
-          <span class="text-sm text-gray-600">
-            Question <%= @question.position %> sur <%= @question.questionnaire.questions.count %>
-          </span>
-        </div>
-        <div class="text-sm text-gray-500">
-          <%= (@question.position.to_f / @question.questionnaire.questions.count * 100).round(1) %>% complété
-        </div>
-      </div>
-
-      <h1 class="text-3xl font-bold text-gray-900 mb-6">
-        <%= @question.title %>
-      </h1>
-
-      <!-- Progress bar simple et élégante -->
-      <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
-        <div class="bg-gray-900 h-2 rounded-full transition-all duration-500"
-             style="width: <%= (@question.position.to_f / @question.questionnaire.questions.count * 100).round(1) %>%">
-        </div>
-      </div>
-    </div>
-
-    <!-- Formulaire -->
-    <form method="post" action="<%= answer_question_path(@question) %>" class="space-y-6">
-      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
-
-      <!-- Options avec style moderne et visible -->
-      <div class="space-y-3">
-        <% @question.answer_options.each_with_index do |option, index| %>
-          <div class="relative group">
-            <input type="radio"
-                   name="answer_code"
-                   value="<%= option.code %>"
-                   id="option_<%= index %>"
-                   onchange="selectOption(this, '<%= option.label %>')"
-                   class="sr-only peer">
-            <label for="option_<%= index %>"
-                   class="option-label flex items-center p-6 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 hover:shadow-lg transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:shadow-lg peer-checked:ring-4 peer-checked:ring-blue-100">
-
-              <!-- Radio button moderne -->
-              <div class="radio-circle relative w-7 h-7 border-3 border-gray-300 rounded-full flex items-center justify-center mr-5 transition-all duration-300 group-hover:border-blue-500 group-hover:scale-110">
-                <div class="radio-dot w-4 h-4 bg-blue-500 rounded-full opacity-0 transition-all duration-300 scale-0 peer-checked:opacity-100 peer-checked:scale-100"></div>
-                <!-- Ring effect -->
-                <div class="absolute inset-0 rounded-full border-2 border-blue-500 opacity-0 animate-ping peer-checked:opacity-75"></div>
-              </div>
-
-              <!-- Option text avec meilleure visibilité -->
-              <div class="flex-1">
-                <span class="option-text block text-xl font-semibold text-gray-800 group-hover:text-blue-900 transition-colors duration-300">
-                  <%= option.label %>
-                </span>
-              </div>
-
-              <!-- Icône de sélection -->
-              <div class="opacity-0 group-hover:opacity-100 peer-checked:opacity-100 transition-opacity duration-300">
-                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-            </label>
-          </div>
-        <% end %>
-      </div>
-
-      <input type="hidden" name="answer" id="answer_value">
-
-      <!-- Boutons d'action modernes et visibles -->
-      <div class="flex justify-between items-center pt-10">
-        <% if @previous_question %>
-          <a href="<%= question_path(@previous_question, session_token: params[:session_token]) %>"
-             class="group inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 font-semibold rounded-lg transition-all duration-200 hover:shadow-md">
-            <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Précédent
-          </a>
-        <% else %>
-          <a href="<%= root_path %>"
-             class="group inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 font-semibold rounded-lg transition-all duration-200 hover:shadow-md">
-            <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Retour à l'accueil
-          </a>
-        <% end %>
-
-        <button type="submit"
-                class="group inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transform-gpu"
-                disabled>
-          <span class="text-lg">Continuer</span>
-          <svg class="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-          <!-- Effet de lueur -->
-          <div class="absolute inset-0 rounded-lg bg-blue-400 opacity-0 group-hover:opacity-20 transition-opacity duration-200 pointer-events-none"></div>
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <script>
-    function selectOption(radio, label) {
-      // Réinitialiser tous les styles
-      document.querySelectorAll('.option-label').forEach(function(label) {
-        label.classList.remove('border-gray-900', 'bg-gray-50');
-        label.classList.add('border-gray-200');
-      });
-
-      document.querySelectorAll('.radio-dot').forEach(function(dot) {
-        dot.classList.add('opacity-0');
-      });
-
-      document.querySelectorAll('.option-text').forEach(function(text) {
-        text.classList.remove('text-gray-900', 'font-semibold');
-        text.classList.add('text-gray-800', 'font-medium');
-      });
-
-      // Appliquer les styles à l'option sélectionnée
-      const selectedLabel = radio.nextElementSibling;
-      selectedLabel.classList.remove('border-gray-200');
-      selectedLabel.classList.add('border-gray-900', 'bg-gray-50');
-
-      const selectedDot = selectedLabel.querySelector('.radio-dot');
-      selectedDot.classList.remove('opacity-0');
-
-      const selectedText = selectedLabel.querySelector('.option-text');
-      selectedText.classList.remove('text-gray-800', 'font-medium');
-      selectedText.classList.add('text-gray-900', 'font-semibold');
-
-      // Activer le bouton submit
-      document.querySelector('button[type=submit]').disabled = false;
-      document.getElementById('answer_value').value = label;
-    }
-  </script>
 </div>
+
+<script>
+function markSelected(btn) {
+  // Retirer la sélection précédente
+  document.querySelectorAll('button').forEach(b => {
+    b.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+  });
+  // Marquer comme sélectionné
+  btn.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+  // Afficher visuellement
+  setTimeout(() => {
+    let display = document.getElementById('selection-display');
+    if (!display) {
+      display = document.createElement('div');
+      display.id = 'selection-display';
+      display.className = 'mt-4 p-4 bg-blue-100 border-2 border-blue-500 rounded-lg';
+      btn.closest('.bg-white').appendChild(display);
+    }
+    display.innerHTML = '<strong>Sélection :</strong> ' + btn.innerText;
+  }, 100);
+}
+</script>
