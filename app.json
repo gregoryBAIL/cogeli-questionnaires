@@ -1,0 +1,69 @@
+{
+  "name": "Cogeli Questionnaires",
+  "description": "Application de questionnaires fumisterie pour calcul du coefficient de pose",
+  "repository": "https://github.com/gregoryBAIL/cogeli-questionnaires",
+  "logo": "",
+  "keywords": ["rails", "questionnaire", "fumisterie", "cogeli", "tailwindcss"],
+  "website": "",
+  "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "M"
+    }
+  },
+  "addons": [
+    {
+      "plan": "postgresql:postgresql-starter-512"
+    }
+  ],
+  "env": {
+    "RAILS_ENV": {
+      "description": "Rails environment",
+      "value": "production"
+    },
+    "RAILS_MASTER_KEY": {
+      "description": "Rails master key for credentials (required)",
+      "required": true
+    },
+    "SECRET_KEY_BASE": {
+      "description": "Secret key base for Rails sessions",
+      "generator": "secret"
+    },
+    "RAILS_LOG_TO_STDOUT": {
+      "description": "Enable logging to stdout",
+      "value": "enabled"
+    },
+    "RAILS_SERVE_STATIC_FILES": {
+      "description": "Enable serving static files",
+      "value": "enabled"
+    },
+    "NODE_ENV": {
+      "description": "Node.js environment",
+      "value": "production"
+    },
+    "NODE_OPTIONS": {
+      "description": "Node.js options for better memory management",
+      "value": "--max-old-space-size=512"
+    }
+  },
+  "scripts": {
+    "postdeploy": [
+      "npm install",
+      "npm run build-css-production",
+      "bundle exec rails assets:precompile",
+      "bundle exec rails db:create",
+      "bundle exec rails db:migrate",
+      "bundle exec rails db:seed"
+    ]
+  },
+  "stack": "scalingo-22",
+  "buildpacks": [
+    {
+      "url": "https://github.com/Scalingo/nodejs-buildpack"
+    },
+    {
+      "url": "https://github.com/Scalingo/ruby-buildpack"
+    }
+  ]
+}
