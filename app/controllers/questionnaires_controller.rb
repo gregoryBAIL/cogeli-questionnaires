@@ -1,30 +1,62 @@
+# app/controllers/questionnaires_controller.rb
 class QuestionnairesController < ApplicationController
   def index
-    @questionnaires = Questionnaire.active.order(:position)
+    # La vue index.html.erb contient tout le JS nécessaire
   end
 
-  def show
-    @questionnaire = Questionnaire.friendly.find(params[:id])
+  # API endpoint pour sauvegarder les résultats si nécessaire
+  def save_results
+    session_data = {
+      answers: params[:answers],
+      kits: params[:kits],
+      total: params[:total],
+      completed_at: Time.current
+    }
+
+    # Optionnel : sauvegarder en base
+    if params[:save_to_db]
+      @session = QuestionnaireSession.create!(
+        questionnaire_id: 1,
+        session_token: SecureRandom.urlsafe_base64(32),
+        completed_at: Time.current,
+        metadata: session_data
+      )
+
+      # Créer le résultat
+      @session.create_result!(
+        product_kits: params[:kits],
+        generated_at: Time.current
+      )
+    end
+
+    render json: { success: true, session_id: @session&.id }
   end
 
-  def start
-    @questionnaire = Questionnaire.friendly.find(params[:id])
+  # Endpoint pour générer le PDF
+  def generate_pdf
+    kits = params[:kits]
+    total = params[:total]
 
-    # Créer nouvelle session
-    @session = @questionnaire.questionnaire_sessions.build(
-      started_at: Time.current,
-      ip_address: request.remote_ip.present? ? request.remote_ip : '127.0.0.1',
-      user_agent: request.user_agent.present? ? request.user_agent : 'Unknown',
-      current_question: @questionnaire.first_question
-    )
+    # Utiliser Prawn ou WickedPDF pour générer le PDF
+    pdf = Prawn::Document.new do |pdf|
+      pdf.text "Configuration Cogeli", size: 24, style: :bold
+      pdf.move_down 20
 
-    # Force generation of session token if not present
-    @session.send(:generate_session_token) if @session.session_token.blank?
+      kits.each do |category, items|
+        pdf.text category, size: 16, style: :bold
+        pdf.move_down 10
 
-    @session.save!
+        items.each do |item|
+          pdf.text "#{item['code']} - #{item['name']}: #{item['price']}€"
+        end
+        pdf.move_down 15
+      end
 
-    session[:questionnaire_session_token] = @session.session_token
+      pdf.text "Total HT: #{total}€", size: 18, style: :bold
+    end
 
-    redirect_to question_path(@session.current_question.id)
+    send_data pdf.render,
+              filename: "configuration_cogeli_#{Date.current}.pdf",
+              type: 'application/pdf'
   end
 end
