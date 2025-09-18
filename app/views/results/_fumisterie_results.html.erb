@@ -10,7 +10,7 @@
   total_general = total_main + total_options
 %>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50" data-controller="clipboard">
   <!-- Header avec logo Cogeli fictif -->
   <div class="bg-white shadow-sm border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -79,7 +79,8 @@
                         </div>
                         <div class="text-right ml-4 flex flex-col items-end space-y-2">
                           <span class="text-lg font-bold text-gray-900"><%= number_to_currency(kit['price'], unit: '', precision: 2) %> €</span>
-                          <button onclick="copyToClipboard('<%= kit['code'] %>')"
+                          <button data-action="click->clipboard#copy"
+                                  data-clipboard-text="<%= kit['code'] %>"
                                   class="copy-btn inline-flex items-center px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm"
                                   title="Copier le code">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +122,8 @@
                     </div>
                     <div class="text-right ml-4 flex flex-col items-end space-y-2">
                       <span class="text-lg font-bold text-gray-900"><%= number_to_currency(kit['price'], unit: '', precision: 2) %> €</span>
-                      <button onclick="copyToClipboard('<%= kit['code'] %>')"
+                      <button data-action="click->clipboard#copy"
+                              data-clipboard-text="<%= kit['code'] %>"
                               class="copy-btn inline-flex items-center px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm"
                               title="Copier le code">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,59 +226,3 @@
   </div>
 </div>
 
-<script>
-  // Fonction pour copier le code du kit dans le presse-papiers
-  function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-      // Trouver le bouton qui a été cliqué
-      const allButtons = document.querySelectorAll('.copy-btn');
-      allButtons.forEach(btn => {
-        if (btn.onclick && btn.onclick.toString().includes(text)) {
-          // Feedback visuel temporaire
-          const originalContent = btn.innerHTML;
-          btn.innerHTML = '<svg class="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Copié !';
-          btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-          btn.classList.add('bg-green-500', 'hover:bg-green-600');
-
-          setTimeout(() => {
-            btn.innerHTML = originalContent;
-            btn.classList.remove('bg-green-500', 'hover:bg-green-600');
-            btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
-          }, 1500);
-        }
-      });
-
-      // Toast notification
-      showToast('Code ' + text + ' copié dans le presse-papiers !');
-    }, function(err) {
-      console.error('Erreur lors de la copie: ', err);
-      showToast('Erreur lors de la copie', 'error');
-    });
-  }
-
-  // Fonction pour afficher un toast
-  function showToast(message, type = 'success') {
-    // Créer l'élément toast
-    const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full ${
-      type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-    }`;
-    toast.textContent = message;
-
-    // Ajouter au DOM
-    document.body.appendChild(toast);
-
-    // Animation d'entrée
-    setTimeout(() => {
-      toast.classList.remove('translate-x-full');
-    }, 100);
-
-    // Supprimer après 3 secondes
-    setTimeout(() => {
-      toast.classList.add('translate-x-full');
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
-    }, 3000);
-  }
-</script>

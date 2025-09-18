@@ -1,4 +1,6 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50"
+     data-controller="question-form"
+     data-question-form-question-code-value="<%= @question.code %>">
   <!-- Header avec logo Cogeli -->
   <div class="bg-white shadow-sm border-b border-gray-200">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -47,10 +49,9 @@
                      min="<%= @question.metadata['min'] || 0 %>"
                      max="<%= @question.metadata['max'] || 10 %>"
                      value="<%= @answer&.answer || 0 %>"
-                     onchange="document.getElementById('answer_code_value').value = this.value; enableSubmitButton()"
-                     oninput="document.getElementById('answer_code_value').value = this.value; enableSubmitButton()"
+                     data-action="change->question-form#handleInputChange input->question-form#handleInputChange"
                      class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-gray-800 focus:outline-none transition-all duration-200">
-              <input type="hidden" name="answer_code" id="answer_code_value" value="<%= @answer&.answer || 0 %>">
+              <input type="hidden" name="answer_code" id="answer_code_value" value="<%= @answer&.answer || 0 %>" data-question-form-target="answerValue">
             </div>
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -67,7 +68,7 @@
           <!-- Quantités multiples pour passages mur -->
           <div class="space-y-4">
             <!-- Champ caché pour stocker la réponse -->
-            <input type="hidden" name="answer" id="answer_value" value="">
+            <input type="hidden" name="answer" id="answer_value" value="" data-question-form-target="answerValue">
 
             <p class="text-sm text-gray-600 mb-4">
               <% if @question.code == 'QP4' %>
@@ -103,7 +104,9 @@
                   <!-- Contrôles de quantité en dessous -->
                   <div class="flex items-center justify-center space-x-4">
                     <button type="button"
-                            onclick="changeQuantity('<%= option.code %>', -1)"
+                            data-action="click->question-form#changeQuantity"
+                            data-option-code="<%= option.code %>"
+                            data-delta="-1"
                             class="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-full flex items-center justify-center font-bold text-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300">
                       −
                     </button>
@@ -118,13 +121,15 @@
                              min="0"
                              max="20"
                              value="0"
-                             onchange="updateQuantityTotal(); enableSubmitButton()"
-                             oninput="updateQuantityTotal(); enableSubmitButton()"
+                             data-action="change->question-form#handleInputChange input->question-form#handleInputChange"
+                             data-points="<%= option.metadata['points'] || 0 %>"
                              class="w-20 h-12 px-3 py-2 text-center text-xl font-bold border-3 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all duration-200 bg-gray-50 focus:bg-white">
                     </div>
 
                     <button type="button"
-                            onclick="changeQuantity('<%= option.code %>', 1)"
+                            data-action="click->question-form#changeQuantity"
+                            data-option-code="<%= option.code %>"
+                            data-delta="1"
                             class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full flex items-center justify-center font-bold text-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
                       +
                     </button>
@@ -169,11 +174,7 @@
 
         <% elsif @question.question_type == 'multiple_choice' %>
           <!-- Choix multiples -->
-          <div class="space-y-3"
-               data-controller="multiple-select"
-               <% if @question.metadata['max_selections'] %>
-               data-multiple-select-max="<%= @question.metadata['max_selections'] %>"
-               <% end %>>
+          <div class="space-y-3">
 
             <% if @question.metadata['max_selections'] %>
               <p class="text-sm text-gray-600 mb-4">
@@ -196,7 +197,7 @@
                              value="<%= option.code %>"
                              data-label="<%= option.label %>"
                              data-points="<%= option.metadata['points'] %>"
-                             data-action="change->multiple-select#updateCount"
+                             data-action="change->question-form#updateMultipleChoice"
                              class="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 checked:bg-blue-500 checked:border-blue-500">
 
                       <!-- Texte de l'option -->
@@ -222,7 +223,7 @@
             <div class="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
               <div class="flex justify-between items-center">
                 <span class="text-sm font-medium text-green-800">
-                  <span data-multiple-select-target="counter">0</span> option(s) sélectionnée(s)
+                  <span id="selected_count">0</span> option(s) sélectionnée(s)
                   <% if @question.metadata['max_selections'] %>
                     / <%= @question.metadata['max_selections'] %> max
                   <% end %>
@@ -252,7 +253,8 @@
                          value="<%= option.code %>"
                          id="option_<%= index %>"
                          data-points="<%= option.metadata&.dig('points') || option.value %>"
-                         onchange="updateSingleChoiceTotal(); document.getElementById('answer_value').value = '<%= option.label %>'"
+                         data-action="change->question-form#updateSingleChoiceTotal"
+                         data-label="<%= option.label %>"
                          class="sr-only peer">
                   <label for="option_<%= index %>"
                          class="block p-5 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:ring-2 peer-checked:ring-blue-200 transition-all duration-200 group">
@@ -289,7 +291,7 @@
                 <span class="text-sm font-medium text-blue-800">
                   Points sélectionnés:
                 </span>
-                <span id="single_choice_total" class="text-xl font-bold text-blue-900">
+                <span id="single_choice_total" class="text-xl font-bold text-blue-900" data-question-form-target="totalElement">
                   0 points
                 </span>
               </div>
@@ -300,7 +302,7 @@
           </div>
         <% end %>
 
-        <input type="hidden" name="answer" id="answer_value">
+        <input type="hidden" name="answer" id="answer_value" data-question-form-target="answerValue">
 
         <!-- Boutons d'action -->
         <div class="flex justify-between items-center pt-8">
@@ -324,6 +326,7 @@
 
           <button type="submit"
                   class="inline-flex items-center px-8 py-4 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  data-question-form-target="submitButton"
                   disabled>
             <span>Continuer</span>
             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,170 +357,3 @@
   </div>
 </div>
 
-<script>
-  // Fonction pour activer le bouton "Continuer"
-  function enableSubmitButton() {
-    const submitButton = document.querySelector('button[type="submit"]');
-    if (submitButton) {
-      submitButton.disabled = false;
-    }
-  }
-
-  // Fonction pour mettre à jour le total des points pour les choix simples
-  function updateSingleChoiceTotal() {
-    const selectedRadio = document.querySelector('input[name="answer_code"]:checked');
-    const totalElement = document.getElementById('single_choice_total');
-
-    if (selectedRadio && totalElement) {
-      const points = parseFloat(selectedRadio.dataset.points) || 0;
-      totalElement.textContent = points + ' points';
-
-      // Activer le bouton submit
-      enableSubmitButton();
-    }
-  }
-
-  // Fonction pour changer la quantité avec les boutons + et -
-  function changeQuantity(optionCode, delta) {
-    const input = document.getElementById('quantity_' + optionCode);
-    if (input) {
-      let currentValue = parseInt(input.value) || 0;
-      let newValue = currentValue + delta;
-
-      // Limiter entre 0 et 20
-      newValue = Math.max(0, Math.min(20, newValue));
-
-      input.value = newValue;
-
-      // Déclencher les mises à jour
-      updateQuantityTotal();
-      enableSubmitButton();
-    }
-  }
-
-  // Fonction pour calculer le total des quantités (passages mur, chevêtres, etc.)
-  function updateQuantityTotal() {
-    <% if @question.metadata&.dig('requires_quantity') %>
-      // Configuration dynamique basée sur la question actuelle
-      const quantities = [
-        <% @question.answer_options.each do |option| %>
-        { code: '<%= option.code %>', points: <%= option.metadata['points'] || 0 %> },
-        <% end %>
-      ];
-
-      const totalElementId = '<%= @question.code == 'QP4' ? 'total_passages_mur' : @question.code == 'QP5' ? 'total_chevetre' : @question.code == 'QP6' ? 'total_platrerie' : 'total_question' %>';
-      const questionType = '<%= @question.title %>';
-    <% else %>
-      return; // Pas une question avec quantités
-    <% end %>
-
-    let total = 0;
-
-    quantities.forEach(function(item) {
-      const input = document.getElementById('quantity_' + item.code);
-      const subtotalSpan = document.getElementById('subtotal_' + item.code);
-
-      if (input && subtotalSpan) {
-        const quantity = parseInt(input.value) || 0;
-        const subtotal = quantity * item.points;
-        total += subtotal;
-
-        subtotalSpan.textContent = subtotal.toFixed(1);
-      }
-    });
-
-    const totalSpan = document.getElementById(totalElementId);
-    if (totalSpan) {
-      totalSpan.textContent = total.toFixed(1) + ' points';
-    }
-
-    // Mettre à jour le champ caché avec les résultats
-    const answerValue = document.getElementById('answer_value');
-    if (answerValue) {
-      const details = quantities.map(function(item) {
-        const input = document.getElementById('quantity_' + item.code);
-        const quantity = parseInt(input.value) || 0;
-        if (quantity > 0) {
-          return item.code + ':' + quantity;
-        }
-      }).filter(Boolean).join(',');
-
-      answerValue.value = 'Total: ' + total.toFixed(1) + ' points (' + details + ')';
-    }
-  }
-
-  // Activer le bouton "Continuer" selon le type de question
-  document.addEventListener('DOMContentLoaded', function() {
-    const submitButton = document.querySelector('button[type="submit"]');
-
-    // Pour les radio buttons
-    const radioButtons = document.querySelectorAll('input[type="radio"]');
-    radioButtons.forEach(function(radio) {
-      radio.addEventListener('change', function() {
-        enableSubmitButton();
-      });
-    });
-
-    // Pour les inputs numériques
-    const numberInput = document.querySelector('input[type="number"]');
-    if (numberInput) {
-      // Activer immédiatement si une valeur est déjà présente
-      if (numberInput.value !== '') {
-        enableSubmitButton();
-      }
-
-      numberInput.addEventListener('input', function() {
-        enableSubmitButton();
-      });
-    }
-
-    // Pour les checkboxes (choix multiples) - géré par le Stimulus controller
-    // Juste gérer le bouton submit pour les checkboxes
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    if (checkboxes.length > 0) {
-      function checkSubmitForCheckboxes() {
-        const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
-        if (checkedBoxes.length > 0) {
-          enableSubmitButton();
-        } else {
-          submitButton.disabled = true;
-        }
-      }
-
-      // Initialiser
-      checkSubmitForCheckboxes();
-
-      // Écouter les changements pour le bouton submit uniquement
-      checkboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', checkSubmitForCheckboxes);
-      });
-    }
-
-    // Pour les questions avec quantités multiples (passages mur, chevêtres, etc.)
-    const quantityInputs = document.querySelectorAll('input[name^="quantities"]');
-    if (quantityInputs.length > 0) {
-      // Initialiser le calcul
-      updateQuantityTotal();
-
-      function checkMultipleQuantityForm() {
-        let hasQuantity = false;
-        quantityInputs.forEach(function(input) {
-          if (input.value && parseInt(input.value) > 0) {
-            hasQuantity = true;
-          }
-        });
-
-        if (hasQuantity) {
-          enableSubmitButton();
-        } else {
-          submitButton.disabled = true;
-        }
-      }
-
-      quantityInputs.forEach(function(input) {
-        input.addEventListener('input', checkMultipleQuantityForm);
-        input.addEventListener('change', checkMultipleQuantityForm);
-      });
-    }
-  });
-</script>
