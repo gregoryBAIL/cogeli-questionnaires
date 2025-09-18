@@ -139,3 +139,10 @@ end
     session[:answers] ||= {}
     session[:answers][params[:id]] = params[:answer]
   end
+
+  private
+  
+  def save_answer_to_session
+    session[:answers] ||= {}
+    session[:answers][params[:id]] = params[:answer]
+  end
