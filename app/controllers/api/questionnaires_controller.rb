@@ -26,27 +26,44 @@ class Api::QuestionnairesController < ApplicationController
   end
 
   def generate_pdf
-    # Avec Prawn
-    pdf = Prawn::Document.new do
-      text "Configuration Cogeli", size: 24, style: :bold
-      move_down 20
+    @kits = params[:kits]
+    @total = params[:total]
+    @answers = params[:answers]
+    @date = Date.current
 
-      params[:kits].each do |category, items|
-        text category, size: 16, style: :bold
-        move_down 10
+    # Mapper les réponses aux labels pour le PDF
+    @configuration = {
+      'Sortie du poêle' => @answers['Q1'] == 'R1' ? 'Arrière' : 'Dessus',
+      'Type installation' => @answers['Q2'] == 'R1' ? 'Ventouse' : 'Standard'
+    }
 
-        items.each do |item|
-          text "#{item['code']} - #{item['name']}: #{item['price']}€"
-        end
-        move_down 15
-      end
-
-      text "Total HT: #{params[:total]}€", size: 18, style: :bold
+    if @answers['Q2'] == 'R2'  # Si pas ventouse
+      @configuration['Diamètre raccordement'] = get_diameter_label(@answers['Q3'])
+      @configuration['Liaison'] = get_liaison_label(@answers['Q4'])
+      @configuration['Type travaux'] = get_work_type_label(@answers['Q5'])
+      @configuration['Hauteur conduit'] = "#{@answers['Q6']} mètres"
+      @configuration['Diamètre conduit'] = get_diameter_label(@answers['Q7'])
+      @configuration['Type toiture'] = get_roof_label(@answers['Q8'])
     end
 
-    send_data pdf.render,
+    pdf = render_to_string(
+      pdf: 'configuration_cogeli',
+      template: 'api/questionnaires/pdf',
+      layout: 'pdf',
+      encoding: 'UTF-8',
+      orientation: 'Portrait',
+      page_size: 'A4',
+      margin: { top: 20, bottom: 20, left: 15, right: 15 },
+      footer: {
+        right: 'Page [page] sur [topage]',
+        font_size: 8
+      }
+    )
+
+    send_data pdf,
               filename: "configuration_cogeli_#{Date.current}.pdf",
-              type: 'application/pdf'
+              type: 'application/pdf',
+              disposition: 'attachment'
   end
 
   def send_email
@@ -59,5 +76,26 @@ class Api::QuestionnairesController < ApplicationController
     render json: { success: true }
   rescue => e
     render json: { success: false, error: e.message }, status: 422
+  end
+
+  private
+
+   def get_diameter_label(code)
+    { 'R1' => '80mm', 'R2' => '100mm', 'R3' => '130mm',
+      'R4' => '150mm', 'R5' => '180mm', 'R6' => '80/130mm', 'R7' => '100/150mm' }[code]
+  end
+
+  def get_liaison_label(code)
+    { 'R1' => 'Plafond', 'R2' => 'Traversée de mur 90°', 'R3' => 'Dans conduit' }[code]
+  end
+
+  def get_work_type_label(code)
+    { 'R1' => 'Tubage', 'R2' => 'Conduit intérieur',
+      'R3' => 'Conduit extérieur', 'R4' => 'Conduit concentrique' }[code]
+  end
+
+  def get_roof_label(code)
+    { 'R1' => 'Conduit maçonné', 'R2' => 'Conduit métallique', 'R3' => 'Toiture terrasse',
+      'R4' => 'Ardoise/tuiles plates', 'R5' => 'Tuiles', 'R6' => 'Bac acier', 'R7' => 'Création extérieur' }[code]
   end
 end

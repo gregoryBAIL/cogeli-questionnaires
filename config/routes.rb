@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     post 'save_results', to: 'questionnaires#save_results'
     post 'generate_pdf', to: 'questionnaires#generate_pdf'
     get 'product_kits', to: 'product_kits#index'
+     post 'generate_pdf', to: 'questionnaires#generate_pdf'
   end
 
   # Health check

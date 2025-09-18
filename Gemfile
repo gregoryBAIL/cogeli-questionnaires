@@ -72,3 +72,6 @@ group :test do
 end
 gem 'nokogiri', '~> 1.15.0'
 gem 'cssbundling-rails'
+
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary' # Pour Linux/Mac

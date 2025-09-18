@@ -301,6 +301,7 @@ function displayQuestion() {
     document.getElementById('next-btn').textContent = 'Suivant';
   }
 }
+
 function selectAnswer(questionId, answerCode) {
   answers[questionId] = answerCode;
   document.getElementById('next-btn').disabled = false;
@@ -382,8 +383,8 @@ function calculateKits() {
     let name = '';
 
     if (type === 'T') {
-      // Tubage avec hauteurs groupées
-     let heightGroup = parseInt(height) <= 6 ? '6' : height === '7' ? '8' : parseInt(height) <= 9 ? '10' : '15';
+      // Tubage avec hauteurs groupées - FIX: conversion en nombre
+      let heightGroup = parseInt(height) <= 6 ? '6' : height === '7' ? '8' : parseInt(height) <= 9 ? '10' : '15';
       code = `CFT${diam}-${heightGroup}`;
       name = `Conduit Tubage ${diam}mm ${heightGroup}m`;
     } else if (type === 'DPI') {
@@ -516,7 +517,7 @@ async function saveToDatabase() {
   }
 }
 
-// Génération du PDF
+// Génération du PDF avec WickedPDF
 async function downloadPDF() {
   const kits = calculateKits();
   const total = calculateTotal();
@@ -542,7 +543,7 @@ async function downloadPDF() {
       body: JSON.stringify({
         kits: grouped,
         total: total,
-        answers: answers
+        answers: answers // Envoyer les codes de réponse R1, R2, etc. pour le mapping côté serveur
       })
     });
 
