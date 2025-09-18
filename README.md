@@ -22,3 +22,11 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+# fichier utiles greg
+app/views/questionnaires/index.html.erb
+app/controllers/api/questionnaires_controller.rb
+
+# PDF
+app/views/api/questionnaires/pdf.html.erb
+app/views/layouts/pdf.html.erb
