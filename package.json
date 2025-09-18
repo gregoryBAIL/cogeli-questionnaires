@@ -2,10 +2,10 @@
   "name": "cogeli-questionnaires",
   "version": "1.0.0",
   "scripts": {
-    "build:css": "npm run build-css-production",
-    "build-css": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --watch",
-    "build-css-production": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify",
-    "postinstall": "npm run build-css-production"
+    "scripts": {
+  "build:css": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify",
+  "build-css-production": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/stylesheets/application.tailwind.css --minify"
+}
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",
