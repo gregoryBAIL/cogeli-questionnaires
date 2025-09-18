@@ -1,0 +1,480 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header avec logo Cogeli -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex items-center justify-between">
+        <a href="<%= root_path %>" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <div class="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold text-lg">C</span>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900">Configuration Cogeli</h1>
+        </a>
+        <div class="text-sm text-gray-500">
+          Questionnaire de configuration
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+
+      <!-- Titre de la question -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+          <%= @question.title %>
+        </h2>
+        <div class="h-1 bg-gray-200 rounded-full">
+          <div class="h-1 bg-gray-800 rounded-full transition-all duration-300" style="width: <%= (@question.position.to_f / 8 * 100).round(1) %>%"></div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+          Question <%= @question.position %> sur 8
+        </p>
+      </div>
+
+      <!-- Formulaire -->
+      <form method="post" action="<%= answer_question_path(@question) %>" class="space-y-4">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+        <% if @question.question_type == 'number_input' %>
+          <!-- Input numérique -->
+          <div class="space-y-4">
+            <div class="relative">
+              <input type="number"
+                     name="answer"
+                     id="answer_input"
+                     min="<%= @question.metadata['min'] || 0 %>"
+                     max="<%= @question.metadata['max'] || 10 %>"
+                     value="<%= @answer&.answer || 0 %>"
+                     onchange="document.getElementById('answer_code_value').value = this.value; enableSubmitButton()"
+                     oninput="document.getElementById('answer_code_value').value = this.value; enableSubmitButton()"
+                     class="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-gray-800 focus:outline-none transition-all duration-200">
+              <input type="hidden" name="answer_code" id="answer_code_value" value="<%= @answer&.answer || 0 %>">
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p class="text-sm text-blue-800">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Valeur autorisée : <%= @question.metadata['min'] || 0 %> à <%= @question.metadata['max'] || 10 %>
+              </p>
+            </div>
+          </div>
+
+        <% elsif @question.question_type == 'multiple_choice' %>
+          <!-- Choix multiples -->
+          <div class="space-y-3"
+               data-controller="multiple-select"
+               <% if @question.metadata['max_selections'] %>
+               data-multiple-select-max="<%= @question.metadata['max_selections'] %>"
+               <% end %>>
+
+            <% if @question.metadata['max_selections'] %>
+              <p class="text-sm text-gray-600 mb-4">
+                Sélectionnez jusqu'à <%= @question.metadata['max_selections'] %> options
+              </p>
+            <% else %>
+              <p class="text-sm text-gray-600 mb-4">
+                Sélectionnez toutes les options qui s'appliquent
+              </p>
+            <% end %>
+
+            <div class="space-y-2">
+              <% @question.answer_options.each do |option| %>
+                <label class="flex items-start p-4 border-2 border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-all duration-200">
+                  <input type="checkbox"
+                         name="answer_codes[]"
+                         value="<%= option.code %>"
+                         data-label="<%= option.label %>"
+                         data-points="<%= option.metadata['points'] %>"
+                         data-action="change->multiple-select#updateCount"
+                         class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+
+                  <div class="ml-3 flex-1">
+                    <span class="text-gray-700 font-medium">
+                      <%= option.label %>
+                    </span>
+                    <span class="ml-2 text-sm text-gray-500">
+                      (+<%= option.metadata['points'] %> points)
+                    </span>
+                  </div>
+                </label>
+              <% end %>
+            </div>
+
+            <% if @question.metadata['max_selections'] %>
+              <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p class="text-sm text-blue-800">
+                  <span data-multiple-select-target="counter">0</span> / <%= @question.metadata['max_selections'] %> sélectionné(s)
+                </p>
+              </div>
+            <% else %>
+              <div class="mt-4 p-3 bg-green-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-green-800">
+                    <span data-multiple-select-target="counter">0</span> option(s) sélectionnée(s)
+                  </span>
+                  <span class="text-sm font-medium text-green-900">
+                    Total: <span id="platrerie_total_points">0</span> points
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+        <% elsif @question.metadata&.dig('requires_quantity') %>
+          <!-- Quantités multiples pour passages mur -->
+          <div class="space-y-4">
+            <p class="text-sm text-gray-600 mb-4">
+              <% if @question.code == 'QP4' %>
+                Saisissez la quantité pour chaque type de traversée de mur
+              <% elsif @question.code == 'QP5' %>
+                Saisissez la quantité pour chaque type de chevêtre
+              <% elsif @question.code == 'QP6' %>
+                Saisissez la quantité pour chaque type de travaux de plâtrerie
+              <% else %>
+                Saisissez la quantité pour chaque élément
+              <% end %>
+            </p>
+
+            <% @question.answer_options.each_with_index do |option, index| %>
+              <div class="p-4 bg-white border-2 border-gray-200 rounded-lg">
+                <!-- Titre et points en haut -->
+                <div class="mb-3">
+                  <h4 class="text-lg font-medium text-gray-900 mb-1">
+                    <%= option.label %>
+                  </h4>
+                  <div class="flex justify-between items-center text-sm text-gray-600">
+                    <span><%= option.metadata['points'] %> points par unité</span>
+                    <span class="font-medium">
+                      Sous-total: <span id="subtotal_<%= option.code %>" class="text-blue-600">0</span> points
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Contrôles de quantité en dessous -->
+                <div class="flex items-center justify-center space-x-4">
+                  <button type="button"
+                          onclick="changeQuantity('<%= option.code %>', -1)"
+                          class="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-300">
+                    −
+                  </button>
+
+                  <div class="flex flex-col items-center space-y-1">
+                    <label for="quantity_<%= option.code %>" class="text-sm font-medium text-gray-700">
+                      Quantité
+                    </label>
+                    <input type="number"
+                           name="quantities[<%= option.code %>]"
+                           id="quantity_<%= option.code %>"
+                           min="0"
+                           max="20"
+                           value="0"
+                           onchange="updateQuantityTotal(); enableSubmitButton()"
+                           oninput="updateQuantityTotal(); enableSubmitButton()"
+                           class="w-16 px-2 py-2 text-center text-lg font-semibold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-200">
+                  </div>
+
+                  <button type="button"
+                          onclick="changeQuantity('<%= option.code %>', 1)"
+                          class="w-10 h-10 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-300">
+                    +
+                  </button>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Total générique (passages mur, chevêtres, etc.) -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-medium text-blue-900">
+                  <% if @question.code == 'QP4' %>
+                    Total passages mur:
+                  <% elsif @question.code == 'QP5' %>
+                    Total chevêtres:
+                  <% elsif @question.code == 'QP6' %>
+                    Total plâtrerie:
+                  <% else %>
+                    Total:
+                  <% end %>
+                </span>
+                <span id="<%= @question.code == 'QP4' ? 'total_passages_mur' : @question.code == 'QP5' ? 'total_chevetre' : @question.code == 'QP6' ? 'total_platrerie' : 'total_question' %>" class="text-xl font-bold text-blue-900">
+                  0 points
+                </span>
+              </div>
+              <p class="text-sm text-blue-700 mt-2">
+                Ce total sera ajouté au coefficient de pose
+              </p>
+            </div>
+          </div>
+
+        <% else %>
+          <!-- Choix unique (radio buttons) -->
+          <div class="space-y-3">
+            <% @question.answer_options.each_with_index do |option, index| %>
+              <div class="relative">
+                <input type="radio"
+                       name="answer_code"
+                       value="<%= option.code %>"
+                       id="option_<%= index %>"
+                       onchange="document.getElementById('answer_value').value = '<%= option.label %>'"
+                       class="sr-only peer">
+                <label for="option_<%= index %>"
+                       class="flex items-center p-4 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-gray-300 peer-checked:border-gray-800 peer-checked:bg-gray-50 peer-checked:text-gray-900 transition-all duration-200">
+                  <div class="flex items-center space-x-4">
+                    <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:border-gray-800 peer-checked:bg-gray-800 flex items-center justify-center">
+                      <div class="w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                    </div>
+                    <span class="text-lg font-medium text-gray-700 peer-checked:text-gray-900">
+                      <%= option.label %>
+                      <% if option.metadata&.dig('points') && option.metadata['points'].to_f > 0 %>
+                        <span class="ml-2 text-sm text-gray-500">(+<%= option.metadata['points'] %> points)</span>
+                      <% end %>
+                    </span>
+                  </div>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <input type="hidden" name="answer" id="answer_value">
+
+        <!-- Boutons d'action -->
+        <div class="flex justify-between items-center pt-8">
+          <% if @previous_question %>
+            <a href="<%= question_path(@previous_question, session_token: params[:session_token]) %>"
+               class="inline-flex items-center px-6 py-3 text-gray-600 font-medium hover:text-gray-800 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              <span class="hidden sm:inline">Retour à : </span><%= @previous_question.title.truncate(30) %>
+            </a>
+          <% else %>
+            <a href="<%= root_path %>"
+               class="inline-flex items-center px-6 py-3 text-gray-600 font-medium hover:text-gray-800 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Retour à l'accueil
+            </a>
+          <% end %>
+
+          <button type="submit"
+                  class="inline-flex items-center px-8 py-4 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
+            <span>Continuer</span>
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info d'aide -->
+    <div class="mt-8 text-center">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div class="flex items-center justify-center mb-3">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-blue-900 mb-2">Besoin d'aide ?</h3>
+        <p class="text-blue-700 text-sm">
+          Si vous avez des questions sur les options techniques, nos experts Cogeli sont là pour vous guider.
+        </p>
+        <button class="mt-3 text-blue-600 hover:text-blue-800 font-medium text-sm underline">
+          Contacter un expert
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Fonction pour activer le bouton "Continuer"
+  function enableSubmitButton() {
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = false;
+    }
+  }
+
+  // Fonction pour changer la quantité avec les boutons + et -
+  function changeQuantity(optionCode, delta) {
+    const input = document.getElementById('quantity_' + optionCode);
+    if (input) {
+      let currentValue = parseInt(input.value) || 0;
+      let newValue = currentValue + delta;
+
+      // Limiter entre 0 et 20
+      newValue = Math.max(0, Math.min(20, newValue));
+
+      input.value = newValue;
+
+      // Déclencher les mises à jour
+      updateQuantityTotal();
+      enableSubmitButton();
+    }
+  }
+
+  // Fonction pour calculer le total des quantités (passages mur, chevêtres, etc.)
+  function updateQuantityTotal() {
+    // Détecter le type de question en regardant les éléments présents
+    const isPassageMur = document.getElementById('total_passages_mur');
+    const isChevetre = document.getElementById('total_chevetre');
+    const isPlatrerie = document.getElementById('total_platrerie');
+
+    let quantities, totalElementId, questionType;
+
+    if (isPassageMur) {
+      // Configuration pour passages mur
+      quantities = [
+        { code: 'RP1', points: 0.5 },
+        { code: 'RP2', points: 1.0 },
+        { code: 'RP3', points: 1.5 }
+      ];
+      totalElementId = 'total_passages_mur';
+      questionType = 'passages mur';
+    } else if (isChevetre) {
+      // Configuration pour chevêtres
+      quantities = [
+        { code: 'RP1', points: 1.0 },
+        { code: 'RP2', points: 1.0 }
+      ];
+      totalElementId = 'total_chevetre';
+      questionType = 'chevêtres';
+    } else if (isPlatrerie) {
+      // Configuration pour plâtrerie - utiliser les vraies données des options
+      quantities = [
+        { code: 'RP1', points: 1.0 },
+        { code: 'RP2', points: 1.5 },
+        { code: 'RP3', points: 0.75 },
+        { code: 'RP4', points: 0.5 },
+        { code: 'RP5', points: 0.75 },
+        { code: 'RP6', points: 1.5 },
+        { code: 'RP7', points: 2.5 },
+        { code: 'RP8', points: 3.5 },
+        { code: 'RP9', points: 1.0 },
+        { code: 'RP10', points: 1.5 },
+        { code: 'RP11', points: 0.5 }
+      ];
+      totalElementId = 'total_platrerie';
+      questionType = 'plâtrerie';
+    } else {
+      return; // Pas une question avec quantités
+    }
+
+    let total = 0;
+
+    quantities.forEach(function(item) {
+      const input = document.getElementById('quantity_' + item.code);
+      const subtotalSpan = document.getElementById('subtotal_' + item.code);
+
+      if (input && subtotalSpan) {
+        const quantity = parseInt(input.value) || 0;
+        const subtotal = quantity * item.points;
+        total += subtotal;
+
+        subtotalSpan.textContent = subtotal.toFixed(1);
+      }
+    });
+
+    const totalSpan = document.getElementById(totalElementId);
+    if (totalSpan) {
+      totalSpan.textContent = total.toFixed(1) + ' points';
+    }
+
+    // Mettre à jour le champ caché avec les résultats
+    const answerValue = document.getElementById('answer_value');
+    if (answerValue) {
+      const details = quantities.map(function(item) {
+        const input = document.getElementById('quantity_' + item.code);
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+          return item.code + ':' + quantity;
+        }
+      }).filter(Boolean).join(',');
+
+      answerValue.value = 'Total: ' + total.toFixed(1) + ' points (' + details + ')';
+    }
+  }
+
+  // Activer le bouton "Continuer" selon le type de question
+  document.addEventListener('DOMContentLoaded', function() {
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    // Pour les radio buttons
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        enableSubmitButton();
+      });
+    });
+
+    // Pour les inputs numériques
+    const numberInput = document.querySelector('input[type="number"]');
+    if (numberInput) {
+      // Activer immédiatement si une valeur est déjà présente
+      if (numberInput.value !== '') {
+        enableSubmitButton();
+      }
+
+      numberInput.addEventListener('input', function() {
+        enableSubmitButton();
+      });
+    }
+
+    // Pour les checkboxes (choix multiples) - géré par le Stimulus controller
+    // Juste gérer le bouton submit pour les checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    if (checkboxes.length > 0) {
+      function checkSubmitForCheckboxes() {
+        const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkedBoxes.length > 0) {
+          enableSubmitButton();
+        } else {
+          submitButton.disabled = true;
+        }
+      }
+
+      // Initialiser
+      checkSubmitForCheckboxes();
+
+      // Écouter les changements pour le bouton submit uniquement
+      checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', checkSubmitForCheckboxes);
+      });
+    }
+
+    // Pour les questions avec quantités multiples (passages mur, chevêtres, etc.)
+    const quantityInputs = document.querySelectorAll('input[name^="quantities"]');
+    if (quantityInputs.length > 0) {
+      // Initialiser le calcul
+      updateQuantityTotal();
+
+      function checkMultipleQuantityForm() {
+        let hasQuantity = false;
+        quantityInputs.forEach(function(input) {
+          if (input.value && parseInt(input.value) > 0) {
+            hasQuantity = true;
+          }
+        });
+
+        if (hasQuantity) {
+          enableSubmitButton();
+        } else {
+          submitButton.disabled = true;
+        }
+      }
+
+      quantityInputs.forEach(function(input) {
+        input.addEventListener('input', checkMultipleQuantityForm);
+        input.addEventListener('change', checkMultipleQuantityForm);
+      });
+    }
+  });
+</script>

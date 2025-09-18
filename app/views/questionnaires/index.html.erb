@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="text-center">
+        <div class="flex justify-center items-center space-x-3 mb-4">
+          <div class="h-12 w-12 bg-gray-800 rounded-xl flex items-center justify-center">
+            <span class="text-white font-bold text-xl">C</span>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-900">Cogeli</h1>
+        </div>
+        <p class="text-lg text-gray-600">Configuration professionnelle de fumisterie</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">
+        Configurez votre installation
+      </h2>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Notre outil vous guide pour déterminer les kits fumisterie adaptés à votre projet.
+        Répondez à quelques questions et obtenez une configuration personnalisée.
+      </p>
+    </div>
+
+    <!-- Features -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      <div class="text-center">
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Configuration précise</h3>
+        <p class="text-gray-600">Sélection automatique des kits selon vos besoins techniques</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Prix transparents</h3>
+        <p class="text-gray-600">Tarifs Cogeli officiels mis à jour en temps réel</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Export facile</h3>
+        <p class="text-gray-600">Exportez vos configurations en PDF ou par email</p>
+      </div>
+    </div>
+
+    <!-- Questionnaires -->
+    <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      <% @questionnaires.each_with_index do |questionnaire, index| %>
+        <div class="<%= questionnaire.slug == 'coefficient-pose' ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' %> rounded-xl shadow-lg border-2 hover:shadow-xl transition-all duration-300 overflow-hidden">
+
+          <!-- Header avec icône -->
+          <div class="<%= questionnaire.slug == 'coefficient-pose' ? 'bg-green-500' : 'bg-blue-500' %> p-6 text-white">
+            <div class="flex items-center space-x-4">
+              <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <% if questionnaire.slug == 'coefficient-pose' %>
+                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                  </svg>
+                <% else %>
+                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                <% end %>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold mb-2">
+                  <%= questionnaire.name %>
+                </h3>
+                <% if questionnaire.slug == 'coefficient-pose' %>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white bg-opacity-20">
+                    📊 Calcul de coefficient
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white bg-opacity-20">
+                    🔧 Configuration produits
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenu -->
+          <div class="p-6">
+            <p class="text-gray-700 text-lg mb-6 leading-relaxed">
+              <%= questionnaire.description %>
+            </p>
+
+            <!-- Fonctionnalités -->
+            <div class="space-y-3 mb-6">
+              <% if questionnaire.slug == 'coefficient-pose' %>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Calcul automatique du coefficient
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Estimation du temps de pose
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Détail des points par critère
+                </div>
+              <% else %>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Sélection automatique des kits
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Prix Cogeli officiels en temps réel
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Export PDF et partage
+                </div>
+              <% end %>
+            </div>
+
+            <div class="flex items-center text-sm text-gray-500 mb-6">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Durée estimée: <%= questionnaire.slug == 'coefficient-pose' ? '5-8 minutes' : '3-5 minutes' %>
+            </div>
+
+            <!-- Bouton d'action -->
+            <form method="post" action="<%= start_questionnaire_path(questionnaire) %>" class="w-full">
+              <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+              <button type="submit"
+                      class="w-full <%= questionnaire.slug == 'coefficient-pose' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700' %> text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 text-lg shadow-lg">
+                <span>Commencer le <%= questionnaire.slug == 'coefficient-pose' ? 'calcul' : 'configurateur' %></span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Footer info -->
+    <div class="mt-16 text-center">
+      <div class="bg-gray-800 rounded-xl p-8 text-white">
+        <h4 class="text-xl font-semibold mb-4">Vous avez des questions ?</h4>
+        <p class="text-gray-300 mb-6">
+          Nos experts Cogeli sont disponibles pour vous accompagner dans votre projet fumisterie.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button class="bg-white text-gray-800 font-medium py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors">
+            📞 Nous contacter
+          </button>
+          <button class="border border-gray-500 text-white font-medium py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors">
+            📧 Support technique
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

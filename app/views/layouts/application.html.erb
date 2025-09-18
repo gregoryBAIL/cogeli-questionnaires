@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cogeli - Configuration Fumisterie</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configuration Tailwind pour couleurs Cogeli -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'cogeli': {
+                50: '#f8f9fa',
+                100: '#f1f3f4',
+                200: '#e8eaed',
+                300: '#dadce0',
+                400: '#bdc1c6',
+                500: '#9aa0a6',
+                600: '#80868b',
+                700: '#5f6368',
+                800: '#3c4043',
+                900: '#202124',
+              }
+            },
+            fontFamily: {
+              'sans': ['Inter', 'system-ui', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+
+  <body class="font-sans antialiased">
+    <%= yield %>
+  </body>
+</html>
