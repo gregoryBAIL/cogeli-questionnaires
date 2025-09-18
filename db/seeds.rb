@@ -1,5 +1,12 @@
 puts "🌱 Seeding database..."
 
+# Check if data already exists
+if Questionnaire.count > 0
+  puts "⚠️  Database already seeded (#{Questionnaire.count} questionnaires found)"
+  puts "✅ Skipping seed - data already exists"
+  exit 0
+end
+
 # Clear existing data
 Result.destroy_all
 UserResponse.destroy_all
