@@ -169,10 +169,8 @@ q7.answer_options.create!([
   { code: "R3", label: "130", value: "130", position: 3 },
   { code: "R4", label: "150", value: "150", position: 4 },
   { code: "R5", label: "180", value: "180", position: 5 },
-  { code: "R6", label: "200", value: "200", position: 6 },
-  { code: "R7", label: "250", value: "250", position: 7 },
-  { code: "R8", label: "80130", value: "80130", position: 8 },
-  { code: "R9", label: "100150", value: "100150", position: 9 }
+  { code: "R6", label: "80130", value: "80130", position: 6 },
+  { code: "R7", label: "100150", value: "100150", position: 7 }
 ])
 
 Condition.create!(
@@ -421,10 +419,8 @@ all_diameters.each do |diam_rac|
         when "130" then "Q7=R3"
         when "150" then "Q7=R4"
         when "180" then "Q7=R5"
-        when "200" then "Q7=R6"
-        when "250" then "Q7=R7"
-        when "80130" then "Q7=R8"
-        when "100150" then "Q7=R9"
+        when "80130" then "Q7=R6"
+        when "100150" then "Q7=R7"
         end
 
         condition = "#{diam_rac_condition} AND #{liaison_condition} AND #{type_condition} AND #{diam_conduit_condition} AND NOT ((Q3=R6 OR Q3=R7) AND Q5=R4)"
@@ -511,10 +507,8 @@ work_types.each do |type_code, type_name|
       when "130" then "Q7=R3"
       when "150" then "Q7=R4"
       when "180" then "Q7=R5"
-      when "200" then "Q7=R6"
-      when "250" then "Q7=R7"
-      when "80130" then "Q7=R8"
-      when "100150" then "Q7=R9"
+      when "80130" then "Q7=R6"
+      when "100150" then "Q7=R7"
       end
 
       roof_condition = case roof_code
