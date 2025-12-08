@@ -36,7 +36,7 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 # Additional gems for Cogeli questionnaire project
-gem "friendly_id", "~> 5.5"  # URLs lisibles
+gem "friendly_id", "~> 5.6"  # URLs lisibles
 gem "acts_as_list"           # Pour ordonner les questions
 gem "pagy"                   # Pagination légère
 gem "redis", ">= 4.0.1"      # For session storage
