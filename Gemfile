@@ -70,7 +70,7 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-gem 'nokogiri', '~> 1.15.0'
+gem 'nokogiri', '~> 1.18.10'
 gem 'cssbundling-rails'
 
 gem 'wicked_pdf'
